@@ -11,7 +11,8 @@ const express = require("express");
 
 // import models so we can interact with the database
 const User = require("./models/user");
-
+const Review = require("./models/review");
+const Comment = require("./models/comment");
 // import authentication library
 const auth = require("./auth");
 
@@ -42,6 +43,46 @@ router.post("/initsocket", (req, res) => {
 // |------------------------------|
 // | write your API methods below!|
 // |------------------------------|
+router.get("/reviews", (req, res) => {
+  // empty selector means get all documents
+  Review.find({}).then((reviews) => res.send(reviews));
+});
+
+router.post("/review", auth.ensureLoggedIn, (req, res) => {
+  console.log(req.body)
+  const newReview = new Review({
+    creator_id: req.user._id, 
+    coffee_shop: req.body.coffee_shop,
+    drink: req.body.drink,
+    price: req.body.price,
+    wait_time: req.body.wait_time, 
+    taste: req.body.taste, 
+    vibes: req.body.vibes, 
+    location: req.body.location, 
+    internet: req.body.internet,
+    notes: req.body.notes,
+  });
+
+  newReview.save().then((review) => res.send(review));
+});
+
+router.get("/comment", (req, res) => {
+  Comment.find({ parent: req.query.parent }).then((comments) => {
+    res.send(comments);
+  });
+});
+
+router.post("/comment", auth.ensureLoggedIn, (req, res) => {
+  const newComment = new Comment({
+    creator_id: req.user._id,
+    creator_name: req.user.name,
+    parent: req.body.parent,
+    content: req.body.content,
+  });
+
+  newComment.save().then((comment) => res.send(comment));
+});
+
 
 // anything else falls to this "not found" case
 router.all("*", (req, res) => {

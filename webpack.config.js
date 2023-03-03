@@ -38,6 +38,10 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.mp3$/,
+        loader: 'file-loader'
+      },
+      {
         test: /\.(scss|css)$/,
         use: [
           {
